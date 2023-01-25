@@ -212,8 +212,8 @@
     "webmanifest": {
       "canary": {
         "description": "Un cliente web ágil para Mastodon (canary)",
-        "name": "Elk (canary)",
-        "short_name": "Elk (canary)"
+        "name": "Elk.delnido.es (canary)",
+        "short_name": "Elk.delnido.es"
       },
       "dev": {
         "description": "Un cliente web ágil para Mastodon (desarrollo)",

@@ -40,7 +40,7 @@ export const getEnv = async () => {
     ? 'dev'
     : isPreview
       ? 'preview'
-      : branch === 'main'
+      : branch === 'vic'
         ? 'canary'
         : 'release'
   return { commit, branch, env } as const

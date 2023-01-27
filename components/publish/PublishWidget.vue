@@ -259,38 +259,7 @@ defineExpose({
           </button>
         </CommonTooltip>
 
-        <template v-if="editor">
-          <CommonTooltip placement="top" :content="$t('tooltip.toggle_code_block')">
-            <button
-              btn-action-icon
-              :aria-label="$t('tooltip.toggle_code_block')"
-              :class="editor.isActive('codeBlock') ? 'text-primary' : ''"
-              @click="editor?.chain().focus().toggleCodeBlock().run()"
-            >
-              <div i-ri:code-s-slash-line />
-            </button>
-          </CommonTooltip>
-          <CommonTooltip placement="top" :content="$t('tooltip.toggle_bold')">
-            <button
-              btn-action-icon
-              :aria-label="$t('tooltip.toggle_bold')"
-              :class="editor.isActive('bold') ? 'text-primary' : ''"
-              @click="editor?.chain().focus().toggleBold().run()"
-            >
-              <div i-ri:bold />
-            </button>
-          </CommonTooltip>
-          <CommonTooltip placement="top" :content="$t('tooltip.toggle_italic')">
-            <button
-              btn-action-icon
-              :aria-label="$t('tooltip.toggle_italic')"
-              :class="editor.isActive('italic') ? 'text-primary' : ''"
-              @click="editor?.chain().focus().toggleItalic().run()"
-            >
-              <div i-ri:italic />
-            </button>
-          </CommonTooltip>
-        </template>
+        <PublishEditorTools v-if="editor" :editor="editor" />
 
         <div flex-auto />
 

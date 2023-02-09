@@ -114,13 +114,19 @@ export default defineNuxtConfig({
       translateApi: '',
       // Use the instance where Elk has its Mastodon account as the default
       defaultServer: 'm.webtoo.ls',
+      singleInstance: false,
     },
     storage: {
       fsBase: 'node_modules/.cache/app',
     },
   },
   routeRules: {
+    // Static generation
+    '/': { prerender: true },
+    '/settings/**': { prerender: false },
+    // incremental regeneration
     '/api/list-servers': { swr: true },
+    // CDN cache rules
     '/manifest.webmanifest': {
       headers: {
         'Content-Type': 'application/manifest+json',
@@ -128,6 +134,9 @@ export default defineNuxtConfig({
     },
   },
   nitro: {
+    alias: {
+      'isomorphic-ws': 'unenv/runtime/mock/proxy',
+    },
     esbuild: {
       options: {
         target: 'esnext',
@@ -135,15 +144,38 @@ export default defineNuxtConfig({
     },
     prerender: {
       crawlLinks: true,
-      routes: ['/'],
-      ignore: ['/settings'],
     },
   },
+  sourcemap: !isDevelopment,
   hooks: {
     'nitro:config': function (config) {
       const nuxt = useNuxt()
       config.virtual = config.virtual || {}
       config.virtual['#storage-config'] = `export const driver = ${JSON.stringify(nuxt.options.appConfig.storage.driver)}`
+    },
+    'vite:extendConfig': function (config, { isServer }) {
+      if (isServer) {
+        const alias = config.resolve!.alias as Record<string, string>
+        for (const dep of ['eventemitter3', 'isomorphic-ws'])
+          alias[dep] = resolve('./mocks/class')
+        for (const dep of ['shiki-es', 'fuse.js'])
+          alias[dep] = 'unenv/runtime/mock/proxy'
+        const resolver = createResolver(import.meta.url)
+
+        config.plugins!.unshift({
+          name: 'mock',
+          enforce: 'pre',
+          resolveId(id) {
+            if (id.match(/(^|\/)(@tiptap)\//))
+              return resolver.resolve('./mocks/tiptap.ts')
+            if (id.match(/(^|\/)(prosemirror)/))
+              return resolver.resolve('./mocks/prosemirror.ts')
+          },
+        })
+
+        const noExternal = config.ssr!.noExternal as string[]
+        noExternal.push('masto', '@fnando/sparkline', 'vue-i18n', '@mastojs/ponyfills')
+      }
     },
   },
   app: {
